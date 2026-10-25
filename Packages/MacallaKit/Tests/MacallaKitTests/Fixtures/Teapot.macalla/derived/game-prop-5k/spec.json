@@ -1,0 +1,8 @@
+{
+  "budget" : 5000,
+  "lodCount" : 4,
+  "mapResolution" : 2048,
+  "maps" : [ "color", "normal", "ambientOcclusion" ],
+  "sourceHash" : "9f2c4e1b7a3d5f6e8c0b1a2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f",
+  "style" : "allQuads"
+}

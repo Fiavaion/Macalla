@@ -14,6 +14,8 @@ settings:
 packages:
   MacallaKit:
     path: Packages/MacallaKit
+  CruthKit:
+    path: Packages/CruthKit
 targets:
   Macalla:
     type: application
@@ -22,6 +24,8 @@ targets:
       - path: App
     dependencies:
       - package: MacallaKit
+    # CruthKit is not linked yet (first used by derivation in M4); its tests run in this
+    # scheme so the M0 "decimate on device" check runs in the simulator and on devices.
     # Signing for device builds: Signing.xcconfig optionally includes the
     # git-ignored Signing.local.xcconfig with DEVELOPMENT_TEAM and
     # MACALLA_BUNDLE_ID. Simulator builds need neither.
@@ -29,6 +33,11 @@ targets:
       Debug: Signing.xcconfig
       Release: Signing.xcconfig
     settings:
+      configs:
+        # Files and Finder access to Documents, only for the Debug-only spikes (spike.ply, spike-images).
+        Debug:
+          INFOPLIST_KEY_UIFileSharingEnabled: YES
+          INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: YES
       base:
         PRODUCT_NAME: Macalla
         PRODUCT_BUNDLE_IDENTIFIER: $(MACALLA_BUNDLE_ID)
@@ -36,11 +45,15 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "Macalla uses the camera to photograph the object you are scanning."
         SUPPORTS_MACCATALYST: NO
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
-    # Unit tests live in Packages/MacallaKit (`swift test`); the scheme runs the UI smoke tests.
+    # Package unit tests also run here, so they run in the simulator and on devices,
+    # not only on the Mac with `swift test`.
     scheme:
       testTargets:
+        - package: MacallaKit/MacallaKitTests
+        - package: CruthKit/CruthKitTests
         - MacallaUITests
   MacallaUITests:
     type: bundle.ui-testing

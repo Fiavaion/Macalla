@@ -16,11 +16,17 @@ A first-time user gets a usable textured mesh of a 10–50 cm object in under 10
 
 ```
 App/Sources/              SwiftUI app (iOS/iPadOS 27); UI, ARKit, RealityKit, camera only
-Packages/MacallaKit/      platform-neutral logic (project bundle, capture maths, job specs), tested headless
+App/Sources/Spikes/       Debug-only M0 spike screens (ADR 0002, 0003); delete each once its ADR is decided
+Packages/MacallaKit/      platform-neutral logic (project bundle, splat PLY, capture maths), tested headless
+Packages/CruthKit/        thin Swift wrapper over Cruth's C API; CruthCore.xcframework is built, not committed
 Tests/MacallaUITests/     XCUITest smoke tests in the simulator
 project.yml               XcodeGen spec; Macalla.xcodeproj is generated and git-ignored, never edit it
 Signing.xcconfig          includes the git-ignored Signing.local.xcconfig for device builds
 scripts/ios.sh            generate / build / run / unit / test / device / open / clean
+scripts/build-cruth.sh    builds CruthCore.xcframework (iOS, simulator, macOS) from ../Cruth
+scripts/check-licences.sh D6 licence guard (allow-list, licence markers, SPDX headers)
+spec/                     dependencies.md (allow-list), cruth-commit (pinned Cruth commit)
+spikes/                   throwaway spike work outside the app (Brush build)
 docs/                     PRD, research, ADRs
 notes/                    session continuity (status, TODOs, lessons)
 ```
@@ -28,21 +34,27 @@ notes/                    session continuity (status, TODOs, lessons)
 ## Build and test
 
 ```sh
-./scripts/ios.sh unit          # MacallaKit unit tests on the Mac (swift test, ~1 s)
-./scripts/ios.sh test          # unit tests, then UI smoke tests on an iOS 27 simulator
+./scripts/build-cruth.sh       # CruthCore.xcframework from ../Cruth (~20 s; ios.sh runs it if missing)
+./scripts/ios.sh unit          # package unit tests on the Mac (swift test, ~1 s)
+./scripts/ios.sh test          # unit tests on the Mac, then package + UI tests on an iOS 27 simulator
 ./scripts/ios.sh build         # app for the simulator; --release for the Release config
 ./scripts/ios.sh run           # build, boot, install, launch, stream logs
 ./scripts/ios.sh device        # connected iPhone or iPad; needs Signing.local.xcconfig
+./scripts/ios.sh device -- -spike splats   # Debug build (spikes are Debug-only); results print here
+bash scripts/check-licences.sh # licence guard, as CI runs it
 ```
 
 - Xcode 27.1 or newer with the iOS 27 simulator runtime (`xcodebuild -downloadPlatform iOS`). The script only picks iOS 27+ simulators.
+- Cruth must be checked out at `../Cruth` (or `CRUTH_DIR`). After changing Cruth, rebuild the XCFramework and update `spec/cruth-commit` once Macalla passes against it.
+- **Splats are device-only:** the iOS 27.1 simulator SDK has no `GaussianSplatComponent`, so splat code is behind `#if !targetEnvironment(simulator)` and can't be covered by simulator tests. `PhotogrammetrySession` compiles in the simulator but reports unsupported.
 - To change project settings, edit `project.yml` then `./scripts/ios.sh generate`.
 
 # Testing
 
-- Runner: Swift Testing in `Packages/MacallaKit/Tests` (`./scripts/ios.sh unit`), XCTest UI tests in `Tests/MacallaUITests` (`./scripts/ios.sh test`).
-- Scope a run: `swift test --filter ProjectManifestTests` inside the package; `./scripts/ios.sh test -only-testing:MacallaUITests/LaunchSmokeTests`.
-- Depth: unit tests for every MacallaKit module plus the smoke test. The smoke test is the release gate; don't chase coverage.
+- Runner: Swift Testing in `Packages/*/Tests` (`./scripts/ios.sh unit` on the Mac; the app scheme runs them in the simulator too), XCTest UI tests in `Tests/MacallaUITests` (`./scripts/ios.sh test`).
+- Scope a run: `swift test --filter ProjectBundleTests` inside a package; `./scripts/ios.sh test -only-testing:MacallaUITests/LaunchSmokeTests`.
+- The sample bundle `Packages/MacallaKit/Tests/MacallaKitTests/Fixtures/Teapot.macalla` is the schema's reference; change it with the types.
+- Depth: unit tests for every package module plus the smoke test. The smoke test is the release gate; don't chase coverage.
 
 ## Rules
 
@@ -59,7 +71,8 @@ Ask before editing these:
 - `.github/` and CI configuration (when they exist)
 - `spec/dependencies.md` and the licence allow-list (D6)
 - `docs/PRD.md`'s binding decisions table: change only by agreement, per its own rule
-- the project bundle schema once v1 is published (bundle `version` must bump on any breaking change)
+- the project bundle schema (`ProjectBundle` and the types it validates): bump `ProjectManifest.currentVersion` on any breaking change
+- `spec/cruth-commit`: bump only after the full test suite passes against the new Cruth commit
 
 Keep diffs surgical: change only what the task needs; no drive-by refactors.
 

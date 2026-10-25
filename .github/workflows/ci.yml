@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  licences:
+    name: Licence guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check allow-list, licence markers and SPDX headers
+        run: bash scripts/check-licences.sh
+
+  dco:
+    name: DCO sign-off
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require Signed-off-by on every commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          missing=0
+          for sha in $(git rev-list --no-merges "$BASE_SHA..$HEAD_SHA"); do
+            if ! git log -1 --format=%B "$sha" | grep -qE '^Signed-off-by: .+ <.+>'; then
+              echo "Missing Signed-off-by: $(git log -1 --format='%h %s' "$sha")"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Sign off with 'git commit -s' (see CONTRIBUTING.md)."
+            exit 1
+          fi
+
+  unit:
+    name: Package unit tests (MacallaKit, CruthKit)
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode 27
+        run: |
+          if [ -d /Applications/Xcode_27.1.app ]; then
+            sudo xcode-select -s /Applications/Xcode_27.1.app
+          else
+            echo "Xcode_27.1.app not found; installed:"
+            ls -d /Applications/Xcode*
+            latest="$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -n 1 || true)"
+            [ -n "$latest" ] && sudo xcode-select -s "$latest"
+          fi
+          xcodebuild -version
+      - name: Build Cruth core at the pinned commit
+        env:
+          # Needed only while Fiavaion/Cruth is private: a fine-grained token with read access to it.
+          CRUTH_TOKEN: ${{ secrets.CRUTH_TOKEN }}
+        run: |
+          brew install ninja
+          # The token goes in a per-command header, so it never lands in the clone URL or .git/config.
+          auth=()
+          if [ -n "$CRUTH_TOKEN" ]; then
+            auth=(-c "http.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$CRUTH_TOKEN" | base64 | tr -d '\n')")
+          fi
+          git "${auth[@]}" clone --quiet https://github.com/Fiavaion/Cruth.git ../Cruth
+          git -C ../Cruth checkout --quiet "$(cat spec/cruth-commit)"
+          ./scripts/build-cruth.sh
+      - name: Unit tests
+        run: ./scripts/ios.sh unit
+
+  app:
+    name: App build and UI smoke tests
+    runs-on: macos-26
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode 27
+        run: |
+          if [ -d /Applications/Xcode_27.1.app ]; then
+            sudo xcode-select -s /Applications/Xcode_27.1.app
+          else
+            echo "Xcode_27.1.app not found; installed:"
+            ls -d /Applications/Xcode*
+            latest="$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -n 1 || true)"
+            [ -n "$latest" ] && sudo xcode-select -s "$latest"
+          fi
+          xcodebuild -version
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Install iOS 27 simulator runtime if missing
+        run: |
+          if xcrun simctl list runtimes | grep -q "iOS 27"; then
+            echo "iOS 27 runtime present"
+          else
+            xcodebuild -downloadPlatform iOS
+          fi
+      - name: Build Cruth core at the pinned commit
+        env:
+          # Needed only while Fiavaion/Cruth is private: a fine-grained token with read access to it.
+          CRUTH_TOKEN: ${{ secrets.CRUTH_TOKEN }}
+        run: |
+          brew install ninja
+          # The token goes in a per-command header, so it never lands in the clone URL or .git/config.
+          auth=()
+          if [ -n "$CRUTH_TOKEN" ]; then
+            auth=(-c "http.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$CRUTH_TOKEN" | base64 | tr -d '\n')")
+          fi
+          git "${auth[@]}" clone --quiet https://github.com/Fiavaion/Cruth.git ../Cruth
+          git -C ../Cruth checkout --quiet "$(cat spec/cruth-commit)"
+          ./scripts/build-cruth.sh
+      - name: Unit and UI tests
+        run: ./scripts/ios.sh test

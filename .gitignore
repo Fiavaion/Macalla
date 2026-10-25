@@ -26,3 +26,6 @@ Signing.local.xcconfig
 CLAUDE.local.md
 notes/claude-*.md
 notes/bootstrap-log.md
+
+# Built by scripts/build-cruth.sh
+Packages/CruthKit/CruthCore.xcframework/

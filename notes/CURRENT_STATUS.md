@@ -1,25 +1,32 @@
 # Current status
 
-Updated 2026-10-25 (project bootstrap).
+Updated 2026-10-25 (end of M0 desk work; everything left in M0 needs hardware or a decision).
 
 ## What works
 
-- XcodeGen project (`project.yml`): `Macalla` app (iOS/iPadOS 27, SwiftUI, Swift 6) with a placeholder "No scans yet" screen, plus `MacallaUITests`.
-- `Packages/MacallaKit`: `ProjectManifest` (bundle `manifest.json` v1: encode, decode, version check), 3 Swift Testing tests passing headless.
-- `scripts/ios.sh` generate / build / run / unit / test / device.
-- Public repo: github.com/Fiavaion/Macalla (main pushed 2026-10-25).
+- App: iOS/iPadOS 27 SwiftUI shell (`project.yml`, XcodeGen), placeholder projects screen, Debug-only spike screens for ADR 0002 and 0003 (`App/Sources/Spikes/`), openable at launch with `-spike splats|photogrammetry`.
+- `Packages/MacallaKit`: project bundle schema v1 (`ProjectManifest`, `CaptureSession`, `Shot`, `Coverage`, `DerivedSpec`, `ProcessingJob`, `ProjectBundle.validate()`), sample bundle `Tests/MacallaKitTests/Fixtures/Teapot.macalla`, 3DGS PLY reader/writer (`SplatPLY`) and a synthetic benchmark cloud. Hardened against hostile input after review.
+- `Packages/CruthKit`: Swift wrapper over Cruth's C API; `CruthCore.xcframework` (iOS, simulator, macOS) built by `scripts/build-cruth.sh` from the Cruth commit pinned in `spec/cruth-commit`. Decimation to an exact budget verified on the Mac and in the simulator.
+- Licence guard `scripts/check-licences.sh` (allow-list, declared packages, licence markers, SPDX headers), `spec/dependencies.md`, `CONTRIBUTING.md`, CI workflow `.github/workflows/ci.yml` (not yet run, see blockers).
+- `spikes/brush/`: Brush builds for iOS device and simulator unpatched; trains on Mac Metal; device runner ready (`run-device.sh`).
+- Tests: Mac `swift test` (MacallaKit, CruthKit) and the simulator scheme (package tests + 2 UI tests) pass.
+- Device signing: `Signing.local.xcconfig` (git-ignored) uses the same team as Cruth.
 
 ## What's broken or missing
 
-- No CI and no licence allow-list check yet (M0).
-- Cruth core is not yet built as an XCFramework (M0).
+- CI has never run: Cruth is private (needs `CRUTH_TOKEN` secret or a public Cruth) and the account's Actions billing is blocked.
+- No spike has been measured: all three need devices (simulators lack splat rendering, Brush's indirect dispatch, and photogrammetry support).
+- Brush links `rerun`/`re_analytics`: a P11 privacy problem to fix before ADR 0001 can be a go.
+- The pinned Cruth commit lives on branch `claude/lucid-franklin-mrpthk`, not `main`; re-pin after that branch merges.
 
-## Next 3 tasks (M0)
+## Next 3 tasks
 
-1. CI: build the app, `swift test`, licence allow-list guard (D6).
-2. Cruth core as an XCFramework with a thin Swift wrapper; decimate a test mesh on device.
-3. Run the three spikes in `docs/adr/0001`–`0003` and record go/no-go against their pre-registered rules.
+1. Unblock CI (Cruth access + Actions billing), then confirm the first green run.
+2. Device spikes: splat rendering and photogrammetry on whatever devices are available (iPad Pro M1 now; reference devices later), Brush on iPhone 16 Pro / iPad Pro M4 with a posed dataset.
+3. Record results in ADRs 0001–0003 and decide go/no-go; then delete the spike screens and start M1 (capture core).
 
 ## Blockers
 
-- Spikes need the reference devices: iPhone 13, iPhone 16 Pro, iPad Pro M4.
+- Reference devices: iPhone 13, iPhone 16 Pro, iPad Pro M4 (only an iPad Pro M1 is known to be available).
+- A posed dataset for Brush (COLMAP or Nerfstudio folder) until M1 capture exists.
+- User confirmation of the ADR decision thresholds.

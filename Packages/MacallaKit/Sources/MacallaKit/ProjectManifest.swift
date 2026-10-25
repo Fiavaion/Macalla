@@ -39,7 +39,7 @@ public struct ProjectManifest: Codable, Equatable, Sendable {
     }
 
     public static func decode(from data: Data) throws -> ProjectManifest {
-        let manifest = try decoder.decode(ProjectManifest.self, from: data)
+        let manifest = try BundleJSON.decode(ProjectManifest.self, from: data)
         guard manifest.version == currentVersion else {
             throw DecodingFailure.unsupportedVersion(manifest.version)
         }
@@ -47,20 +47,6 @@ public struct ProjectManifest: Codable, Equatable, Sendable {
     }
 
     public func encoded() throws -> Data {
-        try Self.encoder.encode(self)
+        try BundleJSON.encode(self)
     }
-
-    // Sorted keys and ISO 8601 dates keep manifests diffable and identical across tiers.
-    private static let encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        encoder.dateEncodingStrategy = .iso8601
-        return encoder
-    }()
-
-    private static let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return decoder
-    }()
 }

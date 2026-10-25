@@ -1,0 +1,4 @@
+module MacallaBrush {
+    header "macalla_brush.h"
+    export *
+}

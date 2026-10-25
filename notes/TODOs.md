@@ -2,15 +2,13 @@
 
 ## Backlog (M0 · Foundations and spikes)
 
-- [x] Public repo on GitHub, MIT + DCO (2026-10-25)
-- [ ] `CONTRIBUTING.md`
-- [ ] CI: build the iOS app, run `swift test` and the UI smoke test
-- [ ] Licence allow-list in `spec/dependencies.md` and a CI check that fails on GPL, AGPL or non-commercial dependencies (D6)
-- [ ] Cruth core as an XCFramework; a Swift call decimates a test mesh on device (D4)
-- [ ] Spike: Brush on iOS/Metal, iterations/s on iPhone 16 Pro and iPad Pro M4 → ADR 0001
-- [ ] Spike: `PhotogrammetrySession` support and quality on the three reference devices → ADR 0002
-- [ ] Spike: RealityKit iOS 27 splat rendering, 500K splats at ≥30 fps → ADR 0003
-- [ ] Project bundle schema v1 complete (`session.json`, shot JSON, `spec.json`, `jobs/`), validated against a sample bundle. `manifest.json` is done.
+- [ ] CI green on GitHub (needs Cruth access via `CRUTH_TOKEN` or public Cruth, and Actions billing fixed)
+- [ ] Spike: Brush on iPhone 16 Pro and iPad Pro M4, iterations/s and peak memory → ADR 0001 (runner ready in `spikes/brush`)
+- [ ] Brush without `rerun`/`re_analytics` (P11) before ADR 0001 can be a go: upstream feature flag or patched dependency graph
+- [ ] Spike: `PhotogrammetrySession` on the three reference devices, 3 golden objects → ADR 0002 (screen ready)
+- [ ] Spike: RealityKit 500K splats, 60 s, iPhone 13 and iPhone 16 Pro → ADR 0003 (screen ready); confirm quaternion order and SH colour on device
+- [ ] Re-pin `spec/cruth-commit` once Cruth's branch merges to `main`
+- [ ] Offer the two one-line iOS fixes upstream (Brush `rrfd`, cubecl Metal on iOS) — needs approval, outward-facing
 
 ## In Progress
 
@@ -18,4 +16,10 @@
 
 ## Done (recent, rolling)
 
-- [x] 2026-10-25 Project bootstrap: CLAUDE.md, XcodeGen app, MacallaKit with `ProjectManifest`, smoke test, ADRs 0001–0003 (proposed)
+- [x] 2026-10-25 Project bundle schema v1 + sample bundle + validator (M0)
+- [x] 2026-10-25 Cruth core as XCFramework, CruthKit wrapper, decimation test on Mac and simulator (M0; device run pending)
+- [x] 2026-10-25 Licence allow-list and guard, CI workflow, CONTRIBUTING.md (M0)
+- [x] 2026-10-25 Spike tooling: splat and photogrammetry screens, Brush iOS build and device runner
+- [x] 2026-10-25 Fresh-context review: 2 blockers, 4 high, 4 medium, 6 low found and fixed
+- [x] 2026-10-25 Public repo on GitHub, MIT + DCO
+- [x] 2026-10-25 Project bootstrap

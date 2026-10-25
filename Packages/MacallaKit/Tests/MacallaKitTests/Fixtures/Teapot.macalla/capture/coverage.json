@@ -1,0 +1,6 @@
+{
+  "angleStepDegrees" : 30,
+  "azimuthCells" : 12,
+  "cellCounts" : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  "elevationCells" : 3
+}

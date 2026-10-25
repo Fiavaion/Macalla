@@ -8,11 +8,11 @@ A free, open-source iPhone and iPad app that turns a walk around an object into 
 
 ## Status: M0, foundations and spikes
 
-Nothing is usable yet. The app launches to an empty projects screen; the project bundle manifest is in place.
+Nothing is usable yet. In place: the project bundle format (v1) with a validator and sample bundle, Cruth's geometry core linked as an XCFramework, a licence guard, and Debug-only spike screens. The three M0 spikes (on-device splat training, on-device photogrammetry, RealityKit splat rendering) are built and waiting for measurements on real devices; see [docs/adr/](docs/adr/).
 
 ## Build
 
-Needs macOS, Xcode 27.1 or newer with the iOS 27 simulator runtime, and XcodeGen (`brew install xcodegen`).
+Needs macOS, Xcode 27.1 or newer with the iOS 27 simulator runtime, XcodeGen, CMake and Ninja (`brew install xcodegen cmake ninja`), and [Cruth](https://github.com/Fiavaion/Cruth) checked out at `../Cruth`. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ```sh
 ./scripts/ios.sh test    # unit tests on the Mac, then UI smoke tests in the simulator

@@ -4,10 +4,11 @@
 #   ./scripts/ios.sh generate   regenerate Macalla.xcodeproj from project.yml
 #   ./scripts/ios.sh build      build for the iPhone simulator
 #   ./scripts/ios.sh run        build, boot a simulator, install and launch (logs stream here)
-#   ./scripts/ios.sh unit       run the MacallaKit unit tests headless on the Mac (swift test)
-#   ./scripts/ios.sh test       unit tests, then the UI smoke tests in the simulator; extra arguments
+#   ./scripts/ios.sh unit       run the package unit tests headless on the Mac (swift test)
+#   ./scripts/ios.sh test       unit tests on the Mac, then unit and UI smoke tests in the simulator; extra arguments
 #                               go to xcodebuild, e.g. -only-testing:MacallaUITests/LaunchSmokeTests
-#   ./scripts/ios.sh device     build, install and launch on a connected iPhone or iPad (needs signing)
+#   ./scripts/ios.sh device     build, install and launch on a connected iPhone or iPad (needs signing);
+#                               arguments after -- go to the app, e.g. device -- -spike splats (spikes are Debug-only)
 #   ./scripts/ios.sh open       open the project in Xcode
 #   ./scripts/ios.sh clean      delete the build products
 #
@@ -30,6 +31,7 @@ fail() { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 pretty() { if command -v xcbeautify >/dev/null; then xcbeautify; else cat; fi; }
 
 generate() {
+  ensure_cruth
   command -v xcodegen >/dev/null || fail "xcodegen is missing: brew install xcodegen"
   (cd "$root" && xcodegen generate --quiet)
 }
@@ -55,7 +57,19 @@ xcb() {
   xcodebuild -project "$root/Macalla.xcodeproj" -scheme Macalla -derivedDataPath "$derived" "$@" | pretty
 }
 
-unit() { (cd "$root/Packages/MacallaKit" && swift test); }
+# (Re)build CruthCore.xcframework when it is missing or was built from another Cruth commit than the pin.
+ensure_cruth() {
+  local stamp="$root/Packages/CruthKit/CruthCore.xcframework/cruth-commit"
+  if [[ "$(cat "$stamp" 2>/dev/null)" != "$(tr -d '[:space:]' < "$root/spec/cruth-commit")" ]]; then
+    "$root/scripts/build-cruth.sh"
+  fi
+}
+
+unit() {
+  ensure_cruth
+  (cd "$root/Packages/MacallaKit" && swift test)
+  (cd "$root/Packages/CruthKit" && swift test)
+}
 
 build_sim() {
   generate >&2
@@ -65,10 +79,16 @@ build_sim() {
 }
 
 command="${1:-help}"
+app_args=()
 if [[ "$command" == build || "$command" == run || "$command" == device ]]; then
-  for arg in "${@:2}"; do
-    [[ "$arg" == --release ]] || fail "unknown option for $command: $arg"
-    configuration=Release
+  shift
+  while (( $# )); do
+    case "$1" in
+      --release) configuration=Release ;;
+      --) [[ "$command" == device ]] || fail "only device passes arguments to the app"; shift; app_args=("$@"); break ;;
+      *) fail "unknown option for $command: $1" ;;
+    esac
+    shift
   done
 fi
 
@@ -100,7 +120,7 @@ case "$command" in
     generate
     device="${MACALLA_DEVICE:-}"
     if [[ -z "$device" ]]; then
-      device="$(xcrun devicectl list devices 2>/dev/null | grep -Ei 'iphone|ipad' | grep -v simulated \
+      device="$(xcrun devicectl list devices 2>/dev/null | grep -Ei 'iphone|ipad' | grep -v simulated | grep -v unavailable \
         | grep -oE '[0-9A-Fa-f-]{20,40} \(UDID\)' | head -1 | cut -d' ' -f1 || true)"
     fi
     [[ -n "$device" ]] || fail "no device found. Connect it, unlock it, trust this Mac and enable Developer Mode, or set MACALLA_DEVICE"
@@ -109,7 +129,8 @@ case "$command" in
       -allowProvisioningUpdates -allowProvisioningDeviceRegistration build
     app="$derived/Build/Products/$configuration-iphoneos/Macalla.app"
     xcrun devicectl device install app --device "$device" "$app"
-    xcrun devicectl device process launch --device "$device" "$(bundle_id)"
+    # --console streams the app's stdout here (spike results print there); Ctrl-C detaches.
+    xcrun devicectl device process launch --console --terminate-existing --device "$device" "$(bundle_id)" ${app_args[@]+"${app_args[@]}"}
     ;;
   open) generate; open "$root/Macalla.xcodeproj" ;;
   clean) rm -rf "$derived"; echo "removed $derived" ;;

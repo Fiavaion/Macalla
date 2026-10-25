@@ -1,0 +1,6 @@
+brush-src/
+target/
+build/
+runner/Dataset/
+runner/BrushSpike.xcodeproj/
+runner/BrushSpike.entitlements

@@ -1,0 +1,7 @@
+{
+  "boundingBox" : { "center" : [ 0, 0.12, -0.4 ], "extents" : [ 0.24, 0.24, 0.3 ], "rotation" : [ 0, 0.2588, 0, 0.9659 ] },
+  "gravity" : [ 0, -1, 0 ],
+  "locks" : { "exposure" : true, "focus" : false, "whiteBalance" : true },
+  "passes" : [ { "flipped" : false, "id" : 1 }, { "flipped" : true, "id" : 2 } ],
+  "scaleSource" : "lidar"
+}

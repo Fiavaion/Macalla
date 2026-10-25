@@ -12,6 +12,6 @@ let package = Package(
     ],
     targets: [
         .target(name: "MacallaKit"),
-        .testTarget(name: "MacallaKitTests", dependencies: ["MacallaKit"]),
+        .testTarget(name: "MacallaKitTests", dependencies: ["MacallaKit"], resources: [.copy("Fixtures")]),
     ]
 )

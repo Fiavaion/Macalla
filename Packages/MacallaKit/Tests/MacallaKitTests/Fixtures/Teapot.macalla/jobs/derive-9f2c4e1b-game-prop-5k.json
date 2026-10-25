@@ -1,0 +1,12 @@
+{
+  "finishedAt" : "2026-10-25T14:09:30Z",
+  "id" : "derive-9f2c4e1b-game-prop-5k",
+  "inputHash" : "4b8e2a0c9d1f3e5a7c6b8d0e2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a",
+  "kind" : "derive",
+  "log" : [ "decimate 412,388 → 5,000 tris in 3.1 s", "quad remesh 4,982 quads in 9.4 s", "bake 2048 colour, normal, AO in 5.2 s" ],
+  "parameters" : { "preset" : "game-prop-5k" },
+  "startedAt" : "2026-10-25T14:09:12Z",
+  "state" : "succeeded",
+  "submittedAt" : "2026-10-25T14:09:11Z",
+  "tier" : "device"
+}

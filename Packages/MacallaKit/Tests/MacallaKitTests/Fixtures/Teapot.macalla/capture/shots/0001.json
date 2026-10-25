@@ -1,0 +1,12 @@
+{
+  "capturedAt" : "2026-10-25T14:01:02Z",
+  "exposure" : { "durationSeconds" : 0.008, "iso" : 125, "lensPosition" : 0.71 },
+  "hasDepth" : true,
+  "hasMask" : true,
+  "id" : 1,
+  "intrinsics" : { "cx" : 2015.5, "cy" : 1511.5, "fx" : 2742.1, "fy" : 2742.1, "height" : 3024, "width" : 4032 },
+  "passID" : 1,
+  "pose" : [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0.2, 0, 1 ],
+  "scores" : { "highlightClip" : 0.002, "motion" : 0.05, "noveltyDegrees" : 180, "sharpness" : 1.04 },
+  "status" : "kept"
+}

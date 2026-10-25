@@ -1,0 +1,8 @@
+{
+  "allowedTiers" : [ "device", "mac" ],
+  "createdAt" : "2026-10-25T14:00:00Z",
+  "device" : "iPhone17,1",
+  "osVersion" : "27.1",
+  "targetPresets" : [ "game-prop-5k" ],
+  "version" : 1
+}

@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: MIT
+# Stand-in for the `rfd` crate on iOS, which rfd 0.17 does not support.
+# Only the API that Brush's `rrfd` crate calls is provided; every dialog
+# returns None, since the training library never opens a file dialog.
+[package]
+name = "rfd"
+version = "0.17.2"
+edition = "2024"
+license = "MIT"
+publish = false
+
+[lib]
+path = "src/lib.rs"
