@@ -1,31 +1,50 @@
 # Current status
 
-Updated 2026-10-25 (end of M0 desk work; everything left in M0 needs hardware or a decision).
+Updated 2026-10-25, session end: M0 desk work finished; first device spike measured on an iPad Pro M1.
+
+## Phase
+
+M0 · Foundations and spikes. Every M0 box that can be done without reference hardware is done. Remaining: the three spikes on reference devices (iPhone 13, iPhone 16 Pro, iPad Pro M4) and their go/no-go decisions. ADR thresholds are confirmed by the product owner.
+
+## Build and test (run this session on `5e4c535`)
+
+- `./scripts/ios.sh test`: Mac `swift test` 24/24 MacallaKit, 4/4 CruthKit; simulator (iOS 27, iPhone) 30/30 (package tests + 2 UI tests).
+- `bash scripts/check-licences.sh`: OK.
+- GitHub CI on `5e4c535`: success (licence guard, package tests, app build + UI tests on the `xcode-27` runner).
 
 ## What works
 
-- App: iOS/iPadOS 27 SwiftUI shell (`project.yml`, XcodeGen), placeholder projects screen, Debug-only spike screens for ADR 0002 and 0003 (`App/Sources/Spikes/`), openable at launch with `-spike splats|photogrammetry`.
-- `Packages/MacallaKit`: project bundle schema v1 (`ProjectManifest`, `CaptureSession`, `Shot`, `Coverage`, `DerivedSpec`, `ProcessingJob`, `ProjectBundle.validate()`), sample bundle `Tests/MacallaKitTests/Fixtures/Teapot.macalla`, 3DGS PLY reader/writer (`SplatPLY`) and a synthetic benchmark cloud. Hardened against hostile input after review.
-- `Packages/CruthKit`: Swift wrapper over Cruth's C API; `CruthCore.xcframework` (iOS, simulator, macOS) built by `scripts/build-cruth.sh` from the Cruth commit pinned in `spec/cruth-commit`. Decimation to an exact budget verified on the Mac and in the simulator.
-- Licence guard `scripts/check-licences.sh` (allow-list, declared packages, licence markers, SPDX headers), `spec/dependencies.md`, `CONTRIBUTING.md`, CI `.github/workflows/ci.yml`: **green on GitHub** (licence guard, package tests, app build + UI tests on the `xcode-27` runner; DCO check runs on pull requests).
-- `spikes/brush/`: Brush builds for iOS device and simulator unpatched; trains on Mac Metal; device runner ready (`run-device.sh`).
-- Tests: Mac `swift test` (MacallaKit, CruthKit) and the simulator scheme (package tests + 2 UI tests) pass.
-- Device signing: `Signing.local.xcconfig` (git-ignored) uses the same team as Cruth.
+- App shell (iOS/iPadOS 27, SwiftUI, Swift 6) with Debug-only spike screens: `-spike splats [-splatCount N] [-splatChunk N] [-autoMeasure YES]`, `-spike photogrammetry`.
+- MacallaKit: bundle schema v1 + validator + sample bundle; `SplatPLY` reader/writer; `SplatCloud` (benchmark sphere, `chunks`, `fitted(toSize:)`).
+- CruthKit + `scripts/build-cruth.sh` (Cruth pinned in `spec/cruth-commit`; Cruth is public).
+- Device loop: `./scripts/ios.sh device -- <app args>`; signing via git-ignored `Signing.local.xcconfig` (bundle id `com.fiavaion.macalla`).
+- Brush builds for iOS (`spikes/brush`), trains on Mac Metal (M5 Pro: lego 2,000 iterations in 24 s).
+
+## Spike results so far
+
+- **ADR 0003 (RealityKit splats)**, iPad Pro M1 (not a reference device): trained 420,979-splat scan 33.7 fps mean, 18.0 worst second; RealityKit draws ≤ 262,144 splats per resource, so clouds are chunked. Leaning: RealityKit + chunking + per-device splat budget. Table in the ADR.
+- ADR 0001, 0002: not measured.
 
 ## What's broken or missing
 
-- No spike has been measured: all three need devices (simulators lack splat rendering, Brush's indirect dispatch, and photogrammetry support).
-- Brush links `rerun`/`re_analytics`: a P11 privacy problem to fix before ADR 0001 can be a go.
-- The pinned Cruth commit lives on branch `claude/lucid-franklin-mrpthk`, not `main`; re-pin after that branch merges.
+- Brush on NeRF-synthetic lego ends at ~5,500 splats (also with brush-cli), so lego can't be the Brush benchmark (LESSON-TEST-001). Needs a real-photo capture.
+- Brush links `rerun`/`re_analytics` (P11): fix proposed upstream in brush#561, not merged.
+- Not defects, deliberate: spike screens and their Info.plist file-sharing keys exist only in Debug; benchmark data lives outside the repo in `../Macalla-data` (lego CC-BY-NC, panther no stated licence: local benchmarking only).
 
 ## Next 3 tasks
 
-1. Device spikes: splat rendering and photogrammetry on whatever devices are available (iPad Pro M1 now; reference devices later), Brush on iPhone 16 Pro / iPad Pro M4 with a posed dataset.
-2. Record results in ADRs 0001–0003 and decide go/no-go.
-3. Delete the spike screens and start M1 (capture core).
+1. iPhone 13 (and an iPhone 16 Pro if available): splat spike with `spike.ply` = `../Macalla-data/panther.ply`, `-splatChunk 250000 -autoMeasure YES`; decide ADR 0003.
+2. Real-photo capture of a small object (60–100 photos): photogrammetry spike on device (ADR 0002), then COLMAP poses → Brush device run (ADR 0001).
+3. Record results, decide go/no-go for all three ADRs, delete the spike screens, start M1 (capture core).
 
 ## Blockers
 
-- Reference devices: iPhone 13, iPhone 16 Pro, iPad Pro M4 (only an iPad Pro M1 is known to be available).
-- A posed dataset for Brush (COLMAP or Nerfstudio folder) until M1 capture exists.
+- Reference devices: iPhone 13 is paired but was unavailable; no iPhone 16 Pro or iPad Pro M4 known.
+- A real-photo capture from the user.
+- Upstream review of brush#561 (or a decision to build from our fork).
 
+## Touched this session
+
+- ADRs: [0001](../docs/adr/0001-brush-splat-training-on-device.md), [0002](../docs/adr/0002-apple-photogrammetry-on-device.md), [0003](../docs/adr/0003-realitykit-splat-rendering.md)
+- Upstream: [cubecl#1930](https://github.com/tracel-ai/cubecl/pull/1930), [brush#561](https://github.com/ArthurBrussee/brush/pull/561), [brush#27 comment](https://github.com/ArthurBrussee/brush/issues/27#issuecomment-6402071646)
+- [spikes/brush/README.md](../spikes/brush/README.md), [spec/dependencies.md](../spec/dependencies.md), [lessons](lessons.md)
