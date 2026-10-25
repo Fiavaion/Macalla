@@ -2,7 +2,8 @@
 
 ## Backlog (M0 · Foundations and spikes)
 
-- [ ] Public repo on GitHub, MIT + DCO, `CONTRIBUTING.md`
+- [x] Public repo on GitHub, MIT + DCO (2026-10-25)
+- [ ] `CONTRIBUTING.md`
 - [ ] CI: build the iOS app, run `swift test` and the UI smoke test
 - [ ] Licence allow-list in `spec/dependencies.md` and a CI check that fails on GPL, AGPL or non-commercial dependencies (D6)
 - [ ] Cruth core as an XCFramework; a Swift call decimates a test mesh on device (D4)
