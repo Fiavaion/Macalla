@@ -6,7 +6,7 @@ Thanks for helping. Macalla is MIT-licensed and ships on the App Store, so a few
 
 Needs Xcode 27.1 or newer with the iOS 27 simulator runtime (`xcodebuild -downloadPlatform iOS`), XcodeGen, CMake and Ninja (`brew install xcodegen cmake ninja`).
 
-The geometry core comes from [Cruth](https://github.com/Fiavaion/Cruth), checked out next to this repo at `../Cruth` (or set `CRUTH_DIR`) at the commit in `spec/cruth-commit`. `scripts/build-cruth.sh` builds it into `Packages/CruthKit/CruthCore.xcframework`; the other scripts run it when needed. While the Cruth repository is private, outside contributors can work on everything except CruthKit; ask for access in an issue.
+The geometry core comes from [Cruth](https://github.com/Fiavaion/Cruth), checked out next to this repo at `../Cruth` (or set `CRUTH_DIR`) at the commit in `spec/cruth-commit`. `scripts/build-cruth.sh` builds it into `Packages/CruthKit/CruthCore.xcframework`; the other scripts run it when needed.
 
 ```sh
 ./scripts/ios.sh unit          # package unit tests on the Mac (MacallaKit, CruthKit; swift test)
