@@ -1,0 +1,8 @@
+// Code signing for device builds. Put your own values in Signing.local.xcconfig
+// next to this file (git-ignored), for example:
+//   DEVELOPMENT_TEAM = ABCDE12345
+//   MACALLA_BUNDLE_ID = com.yourname.macalla
+// SPDX-License-Identifier: MIT
+MACALLA_BUNDLE_ID = org.macalla.app
+CODE_SIGN_STYLE = Automatic
+#include? "Signing.local.xcconfig"

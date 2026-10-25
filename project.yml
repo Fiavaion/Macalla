@@ -1,0 +1,56 @@
+# XcodeGen spec. Generate the project with ./scripts/ios.sh generate; the
+# .xcodeproj is generated and git-ignored, so edit this file, never the project.
+name: Macalla
+options:
+  bundleIdPrefix: org.macalla
+  deploymentTarget:
+    iOS: "27.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+packages:
+  MacallaKit:
+    path: Packages/MacallaKit
+targets:
+  Macalla:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+    dependencies:
+      - package: MacallaKit
+    # Signing for device builds: Signing.xcconfig optionally includes the
+    # git-ignored Signing.local.xcconfig with DEVELOPMENT_TEAM and
+    # MACALLA_BUNDLE_ID. Simulator builds need neither.
+    configFiles:
+      Debug: Signing.xcconfig
+      Release: Signing.xcconfig
+    settings:
+      base:
+        PRODUCT_NAME: Macalla
+        PRODUCT_BUNDLE_IDENTIFIER: $(MACALLA_BUNDLE_ID)
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+    # Unit tests live in Packages/MacallaKit (`swift test`); the scheme runs the UI smoke tests.
+    scheme:
+      testTargets:
+        - MacallaUITests
+  MacallaUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: Tests/MacallaUITests
+    dependencies:
+      - target: Macalla
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.macalla.app.uitests
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: YES
