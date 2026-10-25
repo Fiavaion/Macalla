@@ -130,7 +130,10 @@ case "$command" in
     app="$derived/Build/Products/$configuration-iphoneos/Macalla.app"
     xcrun devicectl device install app --device "$device" "$app"
     # --console streams the app's stdout here (spike results print there); Ctrl-C detaches.
-    xcrun devicectl device process launch --console --terminate-existing --device "$device" "$(bundle_id)" ${app_args[@]+"${app_args[@]}"}
+    # App arguments go after --, or devicectl reads flags like -autoMeasure as its own options.
+    launch=(xcrun devicectl device process launch --console --terminate-existing --device "$device" "$(bundle_id)")
+    (( ${#app_args[@]} )) && launch+=(-- "${app_args[@]}")
+    "${launch[@]}"
     ;;
   open) generate; open "$root/Macalla.xcodeproj" ;;
   clean) rm -rf "$derived"; echo "removed $derived" ;;

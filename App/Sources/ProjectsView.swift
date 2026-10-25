@@ -4,7 +4,7 @@ import SwiftUI
 /// Launch screen: the list of scans. Empty until capture lands in M1.
 struct ProjectsView: View {
     #if DEBUG
-    /// `-spike splats [-splatCount N]` or `-spike photogrammetry` opens a spike at launch, for device runs from the terminal.
+    /// `-spike splats [-splatCount N] [-autoMeasure YES]` or `-spike photogrammetry` opens a spike at launch, for device runs from the terminal.
     @State private var path: [String] = UserDefaults.standard.string(forKey: "spike").map { [$0] } ?? []
     #else
     @State private var path: [String] = []

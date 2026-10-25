@@ -123,6 +123,8 @@ final class FrameStats {
     private var limitedSeconds = 0
     private var renderingStatus = "normal"
     private let log = Logger(subsystem: "org.macalla.app", category: "spike.splats")
+    /// `-autoMeasure YES` starts the 60 s measurement after a 5 s warm-up, for unattended device runs.
+    private var autoMeasurePending = UserDefaults.standard.bool(forKey: "autoMeasure")
 
     func describe(splats: Int, degree: Int, source: String) {
         summary = "\(splats.formatted()) splats, SH degree \(degree), \(source)"
@@ -145,6 +147,10 @@ final class FrameStats {
 
     func frame(deltaTime: TimeInterval) {
         clock += deltaTime
+        if autoMeasurePending && clock >= 5 {
+            autoMeasurePending = false
+            startMeasuring(seconds: 60)
+        }
         secondFrames += 1
         secondElapsed += deltaTime
         guard secondElapsed >= 1 else { return }

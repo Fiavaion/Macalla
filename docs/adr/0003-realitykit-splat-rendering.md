@@ -12,7 +12,7 @@ iOS 27 RealityKit can render Gaussian splats natively, which is part of why iOS 
 
 Render splats with RealityKit, alongside the mesh, in AR and in the orbit viewer.
 
-## Decision rule (pre-registered before measuring)
+## Decision rule (pre-registered before measuring; thresholds confirmed by the product owner 2026-10-25)
 
 Spike: load a 500K-splat PLY into RealityKit on iPhone 13 and iPhone 16 Pro, in AR with the camera feed.
 

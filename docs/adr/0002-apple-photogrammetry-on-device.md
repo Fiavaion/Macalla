@@ -12,7 +12,7 @@ The success metric needs a usable textured mesh, offline, on a recent iPhone. Ap
 
 Use `PhotogrammetrySession` on device and Mac, fed with our own stills and ARKit poses (D3, D12). COLMAP/GLOMAP + OpenMVS stay server-only.
 
-## Decision rule (pre-registered before measuring)
+## Decision rule (pre-registered before measuring; thresholds confirmed by the product owner 2026-10-25)
 
 Spike: run the same three golden-set captures on iPhone 13, iPhone 16 Pro and iPad Pro M4.
 

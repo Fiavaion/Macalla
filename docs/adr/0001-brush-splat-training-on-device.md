@@ -12,7 +12,7 @@ Splats must be trained from the same capture as the mesh (Goal 4). Inria's 3DGS 
 
 Use Brush for splat training on device and on the Mac companion; use gsplat on the self-hosted server.
 
-## Decision rule (pre-registered before measuring)
+## Decision rule (pre-registered before measuring; thresholds confirmed by the product owner 2026-10-25)
 
 Spike: build Brush for iOS on Metal and train a 300-shot golden capture with ARKit poses as priors.
 
@@ -34,3 +34,5 @@ Details and commands: [spikes/brush/README.md](../../spikes/brush/README.md).
 - Licences: Apache-2.0; 600 crates, no GPL/AGPL/non-commercial. Four transitive crates are MPL-2.0 (`buildid`, `colored`, `indent`, `option-ext`), which D6 already allows (file-level copyleft).
 - **Open, must resolve before a go:** Brush always pulls in `rerun`, which links an analytics crate (`re_analytics`) and auth code into the binary. That conflicts with P11 even if never called, and inflates the runner executable to 140 MB. A go requires making `brush-rerun` optional (upstream or in our fork of the dependency graph).
 - The decision rule's threshold is ≈ 7.8 iterations/s on iPad Pro M4 (7,000 in 15 minutes).
+- Upstream (2026-10-25): the iOS build fixes were already offered by another contributor on [brush#27](https://github.com/ArthurBrussee/brush/issues/27) (iPhone 17 Pro, NeRF-synthetic lego: 13.6 it/s, 10,000 steps in 735 s, 3.1 GB peak); we confirmed them there rather than duplicating. Opened [brush#561](https://github.com/ArthurBrussee/brush/pull/561) (rerun optional; iOS dependency tree 583 → 352 crates, no `re_*`) and [cubecl#1930](https://github.com/tracel-ai/cubecl/pull/1930) (Metal for `Auto` on every Apple OS).
+- Benchmark dataset: NeRF-synthetic lego, 100 images at 800×800, in `../Macalla-data/nerf_synthetic_lego` (CC-BY-NC model: local benchmarking only, never committed). Mac baseline, Apple M5 Pro: 2,000 iterations in 24 s wall, ≈ 85 it/s at the end.

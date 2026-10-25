@@ -3,11 +3,11 @@
 ## Backlog (M0 · Foundations and spikes)
 
 - [ ] Spike: Brush on iPhone 16 Pro and iPad Pro M4, iterations/s and peak memory → ADR 0001 (runner ready in `spikes/brush`)
-- [ ] Brush without `rerun`/`re_analytics` (P11) before ADR 0001 can be a go: upstream feature flag or patched dependency graph
+- [ ] Brush without `rerun`/`re_analytics` (P11) before ADR 0001 can be a go: [brush#561](https://github.com/ArthurBrussee/brush/pull/561) open; until merged, build from the `Fiavaion/brush` `optional-rerun` branch
 - [ ] Spike: `PhotogrammetrySession` on the three reference devices, 3 golden objects → ADR 0002 (screen ready)
 - [ ] Spike: RealityKit 500K splats, 60 s, iPhone 13 and iPhone 16 Pro → ADR 0003 (screen ready); confirm quaternion order and SH colour on device
 - [ ] Re-pin `spec/cruth-commit` once Cruth's branch merges to `main`
-- [ ] Offer the two one-line iOS fixes upstream (Brush `rrfd`, cubecl Metal on iOS) — needs approval, outward-facing
+- [ ] Follow upstream: [cubecl#1930](https://github.com/tracel-ai/cubecl/pull/1930), [brush#561](https://github.com/ArthurBrussee/brush/pull/561), iOS fixes offered on [brush#27](https://github.com/ArthurBrussee/brush/issues/27)
 
 ## In Progress
 

@@ -28,4 +28,4 @@ Updated 2026-10-25 (end of M0 desk work; everything left in M0 needs hardware or
 
 - Reference devices: iPhone 13, iPhone 16 Pro, iPad Pro M4 (only an iPad Pro M1 is known to be available).
 - A posed dataset for Brush (COLMAP or Nerfstudio folder) until M1 capture exists.
-- User confirmation of the ADR decision thresholds.
+
