@@ -7,7 +7,7 @@ Updated 2026-10-25 (end of M0 desk work; everything left in M0 needs hardware or
 - App: iOS/iPadOS 27 SwiftUI shell (`project.yml`, XcodeGen), placeholder projects screen, Debug-only spike screens for ADR 0002 and 0003 (`App/Sources/Spikes/`), openable at launch with `-spike splats|photogrammetry`.
 - `Packages/MacallaKit`: project bundle schema v1 (`ProjectManifest`, `CaptureSession`, `Shot`, `Coverage`, `DerivedSpec`, `ProcessingJob`, `ProjectBundle.validate()`), sample bundle `Tests/MacallaKitTests/Fixtures/Teapot.macalla`, 3DGS PLY reader/writer (`SplatPLY`) and a synthetic benchmark cloud. Hardened against hostile input after review.
 - `Packages/CruthKit`: Swift wrapper over Cruth's C API; `CruthCore.xcframework` (iOS, simulator, macOS) built by `scripts/build-cruth.sh` from the Cruth commit pinned in `spec/cruth-commit`. Decimation to an exact budget verified on the Mac and in the simulator.
-- Licence guard `scripts/check-licences.sh` (allow-list, declared packages, licence markers, SPDX headers), `spec/dependencies.md`, `CONTRIBUTING.md`, CI workflow `.github/workflows/ci.yml` (not yet run, see blockers).
+- Licence guard `scripts/check-licences.sh` (allow-list, declared packages, licence markers, SPDX headers), `spec/dependencies.md`, `CONTRIBUTING.md`, CI workflow `.github/workflows/ci.yml` (runs on push; blocked on Cruth access, see below).
 - `spikes/brush/`: Brush builds for iOS device and simulator unpatched; trains on Mac Metal; device runner ready (`run-device.sh`).
 - Tests: Mac `swift test` (MacallaKit, CruthKit) and the simulator scheme (package tests + 2 UI tests) pass.
 - Device signing: `Signing.local.xcconfig` (git-ignored) uses the same team as Cruth.
