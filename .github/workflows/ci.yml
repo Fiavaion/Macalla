@@ -49,19 +49,21 @@ jobs:
 
   unit:
     name: Package unit tests (MacallaKit, CruthKit)
-    runs-on: macos-26
+    runs-on: xcode-27  # GitHub's Xcode 27 image (public preview); macos-26 stops at Xcode 26.6
     steps:
       - uses: actions/checkout@v5
       - name: Select Xcode 27
         run: |
+          # Fail rather than fall back: the iOS 27 SDK is required (PRD D2).
           if [ -d /Applications/Xcode_27.1.app ]; then
             sudo xcode-select -s /Applications/Xcode_27.1.app
           else
-            echo "Xcode_27.1.app not found; installed:"
-            ls -d /Applications/Xcode*
-            latest="$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -n 1 || true)"
-            [ -n "$latest" ] && sudo xcode-select -s "$latest"
+            echo "Xcode_27.1.app not found; installed:"; ls -d /Applications/Xcode*
+            latest="$(ls -d /Applications/Xcode_27*.app 2>/dev/null | grep -v -i candidate | sort -V | tail -n 1 || true)"
+            [ -n "$latest" ] || { echo "::error::no Xcode 27 on this runner"; exit 1; }
+            sudo xcode-select -s "$latest"
           fi
+          xcodebuild -version | grep -q '^Xcode 27' || { echo "::error::selected Xcode is not 27"; exit 1; }
           xcodebuild -version
       - name: Build Cruth core at the pinned commit
         env:
@@ -82,20 +84,22 @@ jobs:
 
   app:
     name: App build and UI smoke tests
-    runs-on: macos-26
+    runs-on: xcode-27  # GitHub's Xcode 27 image (public preview); macos-26 stops at Xcode 26.6
     needs: unit
     steps:
       - uses: actions/checkout@v5
       - name: Select Xcode 27
         run: |
+          # Fail rather than fall back: the iOS 27 SDK is required (PRD D2).
           if [ -d /Applications/Xcode_27.1.app ]; then
             sudo xcode-select -s /Applications/Xcode_27.1.app
           else
-            echo "Xcode_27.1.app not found; installed:"
-            ls -d /Applications/Xcode*
-            latest="$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -n 1 || true)"
-            [ -n "$latest" ] && sudo xcode-select -s "$latest"
+            echo "Xcode_27.1.app not found; installed:"; ls -d /Applications/Xcode*
+            latest="$(ls -d /Applications/Xcode_27*.app 2>/dev/null | grep -v -i candidate | sort -V | tail -n 1 || true)"
+            [ -n "$latest" ] || { echo "::error::no Xcode 27 on this runner"; exit 1; }
+            sudo xcode-select -s "$latest"
           fi
+          xcodebuild -version | grep -q '^Xcode 27' || { echo "::error::selected Xcode is not 27"; exit 1; }
           xcodebuild -version
       - name: Install XcodeGen
         run: brew install xcodegen
