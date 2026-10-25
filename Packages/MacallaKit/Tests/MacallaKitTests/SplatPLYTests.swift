@@ -53,6 +53,35 @@ import Testing
         #expect(throws: SplatPLY.ReadError.truncated) { try SplatPLY.read(data) }
     }
 
+    @Test func fittedCentresAndScalesPositionsAndSplatSizes() {
+        var cloud = SplatCloud.benchmarkSphere(count: 1000, radius: 2)
+        for index in Swift.stride(from: 0, to: cloud.positions.count, by: 3) { cloud.positions[index] += 10 }
+        let fitted = cloud.fitted(toSize: 0.3)
+        let xs = Swift.stride(from: 0, to: fitted.positions.count, by: 3).map { fitted.positions[$0] }
+        #expect(abs((xs.max()! + xs.min()!) / 2) < 0.01)
+        #expect(xs.max()! - xs.min()! < 0.32)
+        // Splat sizes shrink by the same factor as positions (log scale shifted by log(factor)).
+        #expect(abs(exp(fitted.scales[0]) / exp(cloud.scales[0]) - 0.3 / 4) < 0.01)
+        #expect(fitted.harmonics == cloud.harmonics && fitted.rotations == cloud.rotations)
+    }
+
+    @Test func chunksPartitionTheCloudInOrder() {
+        let cloud = SplatCloud.benchmarkSphere(count: 10)
+        let parts = cloud.chunks(maxCount: 4)
+        #expect(parts.map(\.count) == [4, 4, 2])
+        #expect(parts.allSatisfy { $0.isConsistent })
+        #expect(parts.flatMap(\.positions) == cloud.positions)
+        #expect(parts.flatMap(\.harmonics) == cloud.harmonics)
+        #expect(cloud.chunks(maxCount: 10).count == 1)
+    }
+
+    @Test func benchmarkSphereKeepsSplatsAboveTwoMillimetres() {
+        let large = SplatCloud.benchmarkSphere(count: 500_000)
+        #expect(large.scales.allSatisfy { exp($0) >= 0.002 - 1e-6 })
+        let small = SplatCloud.benchmarkSphere(count: 2_000)
+        #expect(exp(small.scales[0]) > 0.008)
+    }
+
     @Test func benchmarkSphereHasRequestedCountAndValidColours() {
         let cloud = SplatCloud.benchmarkSphere(count: 1000)
         #expect(cloud.count == 1000 && cloud.positions.count == 3000 && cloud.harmonics.count == 3000)

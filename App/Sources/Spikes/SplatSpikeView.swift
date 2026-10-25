@@ -21,12 +21,26 @@ struct SplatSpikeView: View {
                 // Parsing a 500K-splat PLY takes seconds in Debug; keep it off the main actor.
                 let count = splatCount
                 let (cloud, source) = try await Task.detached { try Self.loadCloud(count: count) }.value
-                let entity = try Self.makeSplatEntity(cloud)
+                // `-splatChunk N` splits the cloud into entities of at most N splats each
+                // (RealityKit on iOS 27.1 draws nothing for one resource above 262,144 splats).
+                let chunk = UserDefaults.standard.integer(forKey: "splatChunk")
+                let entity = Entity()
+                for part in cloud.chunks(maxCount: chunk > 0 ? chunk : cloud.count) {
+                    entity.addChild(try Self.makeSplatEntity(part))
+                }
+                // Fixed 0.5 m in front of the camera: always in view, so every frame pays the full splat cost.
+                let anchor = AnchorEntity(.camera)
                 entity.position = [0, 0, -0.5]
-                content.add(entity)
-                stats.describe(splats: cloud.count, degree: cloud.degree, source: source)
+                anchor.addChild(entity)
+                // An opaque 2 cm cube at the sphere's centre: visible cube but no sphere means splats aren't drawing.
+                let marker = ModelEntity(mesh: .generateBox(size: 0.02), materials: [UnlitMaterial(color: .red)])
+                marker.position = entity.position
+                anchor.addChild(marker)
+                content.add(anchor)
+                stats.describe(splats: cloud.count, degree: cloud.degree, source: source, chunk: chunk)
             } catch {
                 loadError = String(describing: error)
+                print("ADR-0003 ERROR \(error)")
             }
             _ = content.subscribe(to: SceneEvents.Update.self) { [stats] event in
                 stats.frame(deltaTime: event.deltaTime)
@@ -66,13 +80,15 @@ struct SplatSpikeView: View {
         guard FileManager.default.fileExists(atPath: file.path(percentEncoded: false)) else {
             return (SplatCloud.benchmarkSphere(count: count), "synthetic sphere")
         }
-        return (try SplatPLY.read(Data(contentsOf: file)), "spike.ply")
+        // Scans arrive in their capture's units and origin; fit them to 30 cm so they sit in view like the sphere.
+        return (try SplatPLY.read(Data(contentsOf: file)).fitted(toSize: 0.3), "spike.ply")
     }
 
     static func makeSplatEntity(_ cloud: SplatCloud) throws -> Entity {
         func descriptor(_ values: [Float], format: MTLAttributeFormat, floatsPerSplat: Int) throws -> GaussianSplatResource.BufferDescriptor {
             let size = values.count * MemoryLayout<Float>.stride
-            let buffer = try LowLevelBuffer(descriptor: .init(capacity: size))
+            // RealityKit rejects buffer capacities that aren't a multiple of 16 bytes (seen at 262,145 splats).
+            let buffer = try LowLevelBuffer(descriptor: .init(capacity: (size + 15) / 16 * 16))
             buffer.replaceUnsafeMutableBytes { destination in
                 values.withUnsafeBytes { destination.copyMemory(from: $0) }
             }
@@ -126,8 +142,9 @@ final class FrameStats {
     /// `-autoMeasure YES` starts the 60 s measurement after a 5 s warm-up, for unattended device runs.
     private var autoMeasurePending = UserDefaults.standard.bool(forKey: "autoMeasure")
 
-    func describe(splats: Int, degree: Int, source: String) {
+    func describe(splats: Int, degree: Int, source: String, chunk: Int) {
         summary = "\(splats.formatted()) splats, SH degree \(degree), \(source)"
+            + (chunk > 0 ? ", chunks of \(chunk.formatted())" : "")
         print("ADR-0003 \(summary)")
         log.notice("\(self.summary, privacy: .public)")
     }

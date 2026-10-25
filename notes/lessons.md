@@ -12,3 +12,6 @@ Tag the insight inline at the point it happens (`LESSON-BUILD-001: …`), then a
 ## API
 
 - **LESSON-API-001** (2026-10-25): Swift's synthesised `Codable` for enums with associated values writes `{"faces":{"_0":5000}}`. Bundle files are read by non-Swift tiers, so bundle enums with payloads get hand-written single-value coding (`DerivedSpec.Budget`).
+- **LESSON-API-002** (2026-10-25): RealityKit silently drops sub-pixel Gaussian splats. A synthetic 500K-splat shell with 0.5 mm splats rendered nothing on an iPad Pro M1 while reporting 59 fps and "rendering normal". A 2 cm opaque marker cube at the splat centre exposed it. Every splat benchmark needs a visible check that splats were drawn, not just a frame rate.
+- **LESSON-API-003** (2026-10-25): RealityKit (iOS 27.1) draws at most 262,144 splats per `GaussianSplatResource`; above that it loads, reports normal rendering and draws nothing. Split clouds into ≤ 262,144-splat entities. `LowLevelBuffer` capacities must be a multiple of 16 bytes.
+- **LESSON-TEST-001** (2026-10-25): Brush on NeRF-synthetic lego with default settings ends at ~5,500 splats (both our FFI and brush-cli, alpha mode masked or transparent), far from the ~477K reported upstream. Don't use lego as the Brush benchmark until that is understood; use a real-photo capture.
