@@ -14,14 +14,14 @@ Updated 2026-10-25 (end of M0 desk work; everything left in M0 needs hardware or
 
 ## What's broken or missing
 
-- CI has never run: Cruth is private (needs `CRUTH_TOKEN` secret or a public Cruth) and the account's Actions billing is blocked.
+- CI runs on GitHub (public repo, so Actions billing is not an issue). Licence guard passes; the unit and app jobs fail at cloning Cruth, which is private: needs a `CRUTH_TOKEN` secret or a public Cruth.
 - No spike has been measured: all three need devices (simulators lack splat rendering, Brush's indirect dispatch, and photogrammetry support).
 - Brush links `rerun`/`re_analytics`: a P11 privacy problem to fix before ADR 0001 can be a go.
 - The pinned Cruth commit lives on branch `claude/lucid-franklin-mrpthk`, not `main`; re-pin after that branch merges.
 
 ## Next 3 tasks
 
-1. Unblock CI (Cruth access + Actions billing), then confirm the first green run.
+1. Unblock CI (Cruth access), then confirm the first green run.
 2. Device spikes: splat rendering and photogrammetry on whatever devices are available (iPad Pro M1 now; reference devices later), Brush on iPhone 16 Pro / iPad Pro M4 with a posed dataset.
 3. Record results in ADRs 0001–0003 and decide go/no-go; then delete the spike screens and start M1 (capture core).
 

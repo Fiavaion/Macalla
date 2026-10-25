@@ -2,7 +2,7 @@
 
 ## Backlog (M0 · Foundations and spikes)
 
-- [ ] CI green on GitHub (needs Cruth access via `CRUTH_TOKEN` or public Cruth, and Actions billing fixed)
+- [ ] CI green on GitHub (runs; needs Cruth access via `CRUTH_TOKEN` or a public Cruth)
 - [ ] Spike: Brush on iPhone 16 Pro and iPad Pro M4, iterations/s and peak memory → ADR 0001 (runner ready in `spikes/brush`)
 - [ ] Brush without `rerun`/`re_analytics` (P11) before ADR 0001 can be a go: upstream feature flag or patched dependency graph
 - [ ] Spike: `PhotogrammetrySession` on the three reference devices, 3 golden objects → ADR 0002 (screen ready)

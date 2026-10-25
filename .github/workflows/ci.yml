@@ -18,7 +18,7 @@ jobs:
     name: Licence guard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Check allow-list, licence markers and SPDX headers
         run: bash scripts/check-licences.sh
 
@@ -27,7 +27,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Require Signed-off-by on every commit
@@ -51,7 +51,7 @@ jobs:
     name: Package unit tests (MacallaKit, CruthKit)
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Select Xcode 27
         run: |
           if [ -d /Applications/Xcode_27.1.app ]; then
@@ -85,7 +85,7 @@ jobs:
     runs-on: macos-26
     needs: unit
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Select Xcode 27
         run: |
           if [ -d /Applications/Xcode_27.1.app ]; then
