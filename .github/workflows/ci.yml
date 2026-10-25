@@ -63,8 +63,9 @@ jobs:
             [ -n "$latest" ] || { echo "::error::no Xcode 27 on this runner"; exit 1; }
             sudo xcode-select -s "$latest"
           fi
-          xcodebuild -version | grep -q '^Xcode 27' || { echo "::error::selected Xcode is not 27"; exit 1; }
-          xcodebuild -version
+          version="$(xcodebuild -version)"
+          echo "$version"
+          case "$version" in "Xcode 27"*) ;; *) echo "::error::selected Xcode is not 27"; exit 1 ;; esac
       - name: Build Cruth core at the pinned commit
         env:
           # Needed only while Fiavaion/Cruth is private: a fine-grained token with read access to it.
@@ -99,8 +100,9 @@ jobs:
             [ -n "$latest" ] || { echo "::error::no Xcode 27 on this runner"; exit 1; }
             sudo xcode-select -s "$latest"
           fi
-          xcodebuild -version | grep -q '^Xcode 27' || { echo "::error::selected Xcode is not 27"; exit 1; }
-          xcodebuild -version
+          version="$(xcodebuild -version)"
+          echo "$version"
+          case "$version" in "Xcode 27"*) ;; *) echo "::error::selected Xcode is not 27"; exit 1 ;; esac
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Install iOS 27 simulator runtime if missing
