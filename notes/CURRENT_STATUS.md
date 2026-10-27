@@ -1,12 +1,16 @@
 # Current status
 
-Updated 2026-10-25, session end: M0 desk work finished; first device spike measured on an iPad Pro M1.
+Updated 2026-10-27, session end: no code change; Macalla joined the cross-project test queue with its own simulator. M0 desk work finished; first device spike measured on an iPad Pro M1.
 
 ## Phase
 
 M0 · Foundations and spikes. Every M0 box that can be done without reference hardware is done. Remaining: the three spikes on reference devices (iPhone 13, iPhone 16 Pro, iPad Pro M4) and their go/no-go decisions. ADR thresholds are confirmed by the product owner.
 
-## Build and test (run this session on `5e4c535`)
+## Build and test
+
+- 2026-10-27 on `b6feaa6`: `MACALLA_SIMULATOR="Macalla Tests" ./scripts/ios.sh test` through the test queue passed (Mac 24 MacallaKit + 4 CruthKit; simulator package + 2 UI tests; 78 s), on the dedicated "Macalla Tests" simulator.
+
+From the 2026-10-25 session on `5e4c535`:
 
 - `./scripts/ios.sh test`: Mac `swift test` 24/24 MacallaKit, 4/4 CruthKit; simulator (iOS 27, iPhone) 30/30 (package tests + 2 UI tests).
 - `bash scripts/check-licences.sh`: OK.
@@ -19,6 +23,7 @@ M0 · Foundations and spikes. Every M0 box that can be done without reference ha
 - CruthKit + `scripts/build-cruth.sh` (Cruth pinned in `spec/cruth-commit`; Cruth is public).
 - Device loop: `./scripts/ios.sh device -- <app args>`; signing via git-ignored `Signing.local.xcconfig` (bundle id `com.fiavaion.macalla`).
 - Brush builds for iOS (`spikes/brush`), trains on Mac Metal (M5 Pro: lego 2,000 iterations in 24 s).
+- Cross-project test queue (global skill `~/.claude/skills/test-queue`): Macalla is listed in `~/.config/test-queue/projects.tsv` with the "Macalla Tests" simulator, alongside AcaGo, Cuardach, Cruth, Eagar and Solas. The daily launchd schedule is not installed yet (needs the user's go-ahead).
 
 ## Spike results so far
 
@@ -42,6 +47,7 @@ M0 · Foundations and spikes. Every M0 box that can be done without reference ha
 - Reference devices: iPhone 13 is paired but was unavailable; no iPhone 16 Pro or iPad Pro M4 known.
 - A real-photo capture from the user.
 - Upstream review of brush#561 (or a decision to build from our fork).
+- User go-ahead (and time) to install the nightly test schedule.
 
 ## Touched this session
 

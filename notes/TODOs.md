@@ -9,6 +9,7 @@
 - [ ] Follow upstream: [cubecl#1930](https://github.com/tracel-ai/cubecl/pull/1930), [brush#561](https://github.com/ArthurBrussee/brush/pull/561), iOS fixes offered on [brush#27](https://github.com/ArthurBrussee/brush/issues/27)
 - [ ] Re-pin `spec/cruth-commit` once Cruth's `claude/lucid-franklin-mrpthk` branch merges to `main` (checked 2026-10-25: not merged)
 - [ ] CruthKit decimation test on a physical device (runs in the scheme; only simulator and Mac so far)
+- [ ] Switch on the nightly cross-project test run (Macalla is in `~/.config/test-queue/projects.tsv`): `~/.claude/skills/test-queue/test-queue.sh install 02:00`, which needs the user's go-ahead (auto mode blocks persistent launchd jobs)
 
 ## In Progress
 
@@ -16,6 +17,7 @@
 
 ## Done (recent, rolling)
 
+- [x] 2026-10-27 Macalla added to the cross-project test queue with its own simulator "Macalla Tests"; suite passed through the queue (78 s)
 - [x] 2026-10-25 ADR 0003 measured on iPad Pro M1 (extra device): splat cap 262,144 per resource, chunking, 16-byte buffers, real scan 33.7 fps mean / 18.0 worst
 - [x] 2026-10-25 ADR 0001–0003 thresholds confirmed by the product owner
 - [x] 2026-10-25 Upstream: cubecl#1930 and brush#561 opened, brush#27 commented
